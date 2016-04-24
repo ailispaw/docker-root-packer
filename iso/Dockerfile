@@ -1,8 +1,8 @@
-FROM ailispaw/ubuntu-essential:14.04
+FROM ailispaw/ubuntu-essential:16.04
 
 RUN apt-get -q update && \
     apt-get -q -y install --no-install-recommends bc build-essential \
-      cpio kmod p7zip-full syslinux xorriso && \
+      cpio kmod p7zip-full syslinux syslinux-common isolinux xorriso && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ENV SRCDIR /usr/src
@@ -54,8 +54,8 @@ RUN mkdir -p ${ISO}/boot && \
 COPY bzImage ${ISO}/boot/
 
 RUN mkdir -p ${ISO}/boot/isolinux && \
-    cp /usr/lib/syslinux/isolinux.bin ${ISO}/boot/isolinux/ && \
-    cp /usr/lib/syslinux/linux.c32 ${ISO}/boot/isolinux/ldlinux.c32
+    cp /usr/lib/ISOLINUX/isolinux.bin ${ISO}/boot/isolinux/ && \
+    cp /usr/lib/syslinux/modules/bios/ldlinux.c32 ${ISO}/boot/isolinux/
 
 COPY isolinux.cfg ${ISO}/boot/isolinux/
 
@@ -67,7 +67,7 @@ RUN cd ${ISO} && \
       -l -J -R -V "DOCKER_ROOT" \
       -no-emul-boot -boot-load-size 4 -boot-info-table \
       -b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat \
-      -isohybrid-mbr /usr/lib/syslinux/isohdpfx.bin \
+      -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin \
       -no-pad -o /docker-root.iso $(pwd)
 
 CMD ["cat", "/docker-root.iso"]
